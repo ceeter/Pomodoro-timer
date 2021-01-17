@@ -24,7 +24,9 @@ while [ True ]; do
 	prow=$(( ($termlin - 1) / 2))
 	# col to print prompt in center of term
 	pcol=$(( ($termcol - $(echo $prompt | wc -c) + 2) / 2))
-	
+	# number of dots during restart prompt
+	dot=10
+
 	# timer
 	while [ "$time" -ge `date +%s` ]; do
 		tput clear
@@ -43,26 +45,21 @@ while [ True ]; do
 	tput clear
 	tput cup $prow $pcol
 	echo "$prompt"
-	tput cup $(( $prow + 1)) $(( ($termcol - 1) / 2))
+	tput cup $(( $prow + 1)) $(( ($termcol - $dot) / 2))
 	
 	# restart timer prompt, listens for ENTER
-	while [ True ]; do
-		echo -n "."
-		read -t 1 
-		if [ $? = 0 ]; then
-			break ;
-		fi
-		echo -n "."
-		read -t 1 
-	 	if [ $? = 0 ]; then
-			break ;
-		fi	
-		echo -n "."
-		read -t 1 
-		if [ $? = 0 ]; then
-			break ;
-		fi
-		echo -ne "\b\b\b   \b\b\b"
+	check="True"
+	while [ $check = "True" ]; do
+		for (( i=0; i<$dot; ++i)); do
+				echo -n "."
+				read -t 1
+				if [ $? = 0 ]; then
+					check="False"
+					break
+				fi
+		done	
+		printf "\b%.0s %.0s\b%.0s" \
+		$(eval echo {1..$dot}) $(eval echo {1..$dot}) $(eval echo {1..$dot}) 
 	done
 done
 
