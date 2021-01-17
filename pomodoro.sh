@@ -1,37 +1,25 @@
 #!/bin/bash
 
-date1=$((`date +%s` + $1));
-figlet "$(date -u --date @$(($date1 - `date +%s`)) +%M:%S)" > .p.txt;
-file=.p.txt
-lines=0
-y=$(( ($(tput cols) - $(sed '1q;d' $file | wc -c)) / 2))
-
-# finds how many rows the file contains
-while IFS= read -rN1 char; do
-	if [[ "$char" == $'\n' ]]; then
-		((++lines))
-	fi
-done < "$file"
-
 while [ True ]; do
-	date1=$((`date +%s` + $1));
+	time=$((`date +%s` + $1));
+	msg=$(figlet "$(date -u --date @$(($time - `date +%s`)) +%M:%S)")
+	lines=$(echo "$msg" | wc -l)
 	row=$(( ($(tput lines) - $lines) / 2))
-	col=$y
+	col=$(( ($(tput cols) - $(echo "$msg" | head -n 1 | wc -c)) / 2))
 	temp=$row
-	while [ "$date1" -ge `date +%s` ]; do
+	while [ "$time" -ge `date +%s` ]; do
 		tput clear
-
-		figlet "$(date -u --date @$(($date1 - `date +%s`)) +%M:%S)" > .p.txt;
 		
+		msg=$(figlet "$(date -u --date @$(($time - `date +%s`)) +%M:%S)")
+
 		for (( i=1; i<$lines; ++i)); do
 			tput cup $row $col
-			sed "${i}q;d" $file
+			printf "$msg" | sed "${i}q;d"
 			((++row))
 		done
 		
 		row=$temp
 		sleep 1
-
 	done
 	
 	notify-send "Pomodoro" "5 min pause!"  -u critical -i emote-love -t 5000
