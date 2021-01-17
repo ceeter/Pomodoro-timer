@@ -5,21 +5,11 @@ while [ True ]; do
 	msg=$(figlet "$(date -u --date @$(($time - `date +%s`)) +%M:%S)")
 	lines=$(echo "$msg" | wc -l)
 	row=$(( ($(tput lines) - $lines) / 2))
-	col=$(( ($(tput cols) - $(echo "$msg" | head -n 1 | wc -c)) / 2))
-	temp=$row
 	while [ "$time" -ge `date +%s` ]; do
 		tput clear
-		
-		msg=$(figlet "$(date -u --date @$(($time - `date +%s`)) +%M:%S)")
-
-		for (( i=1; i<$lines; ++i)); do
-			tput cup $row $col
-			printf "$msg" | sed "${i}q;d"
-			((++row))
-		done
-		
-		row=$temp
-		sleep 1
+		tput cup $row
+		figlet -ct "$(date -u --date @$(($time - `date +%s`)) +%M:%S)"
+		sleep 0.1 
 	done
 	
 	notify-send "Pomodoro" "5 min pause!"  -u critical -i emote-love -t 5000
